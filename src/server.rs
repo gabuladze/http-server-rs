@@ -1,3 +1,4 @@
+use std::io::Read;
 use std::net::TcpListener;
 
 pub struct Server {
@@ -15,7 +16,18 @@ impl Server {
         let listener = TcpListener::bind(&self.address).unwrap();
 
         loop {
-            listener.accept();
+            match listener.accept() {
+                Ok((mut stream, _)) => {
+                    let mut buffer = [0; 1024];
+                    match stream.read(&mut buffer) {
+                        Ok(_) => {
+                            println!("\nReceived new request: {}", String::from_utf8_lossy(&buffer))
+                        }
+                        Err(e) => println!("Failed to read from stream: {}", e),
+                    }
+                }
+                Err(e) => println!("Failed to establish connection: {}", e),
+            }
         }
     }
 }
