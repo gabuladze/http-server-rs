@@ -6,6 +6,7 @@ use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::str;
 use std::str::Utf8Error;
 
+#[derive(Debug)]
 pub struct Request<'a> {
     method: Method,
     query_string: Option<QueryString<'a>>,
@@ -55,8 +56,8 @@ impl<'a> TryFrom<&'a [u8]> for Request<'a> {
         // }
 
         if let Some(i) = path.find('?') {
-            path = &path[..i];
             query_string = Some(QueryString::from(&path[i + 1..]));
+            path = &path[..i];
         }
 
         Ok(Self {
