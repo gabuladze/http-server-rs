@@ -31,23 +31,7 @@ impl<'a> TryFrom<&'a [u8]> for Request<'a> {
     type Error = ParseError;
 
     fn try_from(buf: &'a [u8]) -> Result<Self, Self::Error> {
-        // match str::from_utf8(buf) {
-        //     Ok(request) => {}
-        //     Err(_) => return Err(ParseError::InvalidEncoding),
-        // }
-
-        // match str::from_utf8(buf).or(Err(ParseError::InvalidEncoding)) {
-        //     Ok(request) => {}
-        //     Err(e) => return Err(e),
-        // }
-
-        // let request = str::from_utf8(buf).or(Err(ParseError::InvalidEncoding))?;
         let request = str::from_utf8(buf)?;
-
-        // match get_next_word(request) {
-        //     Some((method, request)) => {}
-        //     None => return Err(ParseError::InvalidRequest),
-        // }
 
         let (method, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
         let (mut path, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
@@ -60,14 +44,6 @@ impl<'a> TryFrom<&'a [u8]> for Request<'a> {
         let method: Method = method.parse()?;
 
         let mut query_string = None;
-        // let q = path.find('?');
-        // match q {
-        //     Some(i) => {
-        //         path = &path[..i];
-        //         query_string = Some(&path[i + 1..]);
-        //     }
-        //     None => {}
-        // }
 
         if let Some(i) = path.find('?') {
             query_string = Some(QueryString::from(&path[i + 1..]));
