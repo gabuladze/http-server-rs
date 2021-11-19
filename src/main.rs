@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use server::Server;
 use std::env;
+use std::sync::Arc;
 use website_handler::WebsiteHandler;
 
 mod http;
@@ -12,5 +13,6 @@ fn main() {
     let public_path = env::var("PUBLIC_FOLDER").unwrap_or(default_path);
     println!("Public path: {}", public_path);
     let server = Server::new("127.0.0.1:3010".to_string());
-    server.run(WebsiteHandler::new(public_path));
+    let handler = Arc::new(WebsiteHandler::new(public_path));
+    server.run(handler);
 }
