@@ -11,6 +11,6 @@ fn main() {
     let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));
     let public_path = env::var("PUBLIC_FOLDER").unwrap_or(default_path);
     println!("Public path: {}", public_path);
-    let server = Server::new("127.0.0.1:8000".to_string());
+    let server = Server::new("127.0.0.1:3010".to_string());
     server.run(WebsiteHandler::new(public_path));
 }
