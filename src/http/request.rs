@@ -1,5 +1,5 @@
 use super::method::{Method, MethodError};
-use super::{QueryString, QueryStringValue};
+use super::QueryString;
 use std::convert::{From, TryFrom};
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
