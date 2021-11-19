@@ -1,6 +1,6 @@
-use super::http::{Method, Request, Response, StatusCode};
-use super::server::Handler;
+use super::http::{Method, ParseError, Request, Response, StatusCode};
 use std::fs;
+use std::{thread, time::Duration};
 
 pub struct WebsiteHandler {
     public_path: String,
@@ -26,14 +26,15 @@ impl WebsiteHandler {
             Err(_) => None,
         }
     }
-}
 
-impl Handler for WebsiteHandler {
-    fn handle_request(&mut self, request: &Request) -> Response {
+    pub fn handle_request(&self, request: &Request) -> Response {
         match request.method() {
             Method::GET => match request.path() {
                 "/" => Response::new(StatusCode::Ok, self.read_file("index.html")),
-                "/test" => Response::new(StatusCode::Ok, Some("<h1>Test</h1>".to_string())),
+                "/test" => {
+                    thread::sleep(Duration::from_secs(5));
+                    Response::new(StatusCode::Ok, Some("<h1>Test</h1>".to_string()))
+                }
                 path => match self.read_file(path) {
                     Some(string) => Response::new(StatusCode::Ok, Some(string)),
                     None => Response::new(StatusCode::NotFound, None),
@@ -41,5 +42,10 @@ impl Handler for WebsiteHandler {
             },
             _ => Response::new(StatusCode::NotFound, None),
         }
+    }
+
+    pub fn handle_bad_request(&self, e: &ParseError) -> Response {
+        println!("Failed to parse request: {}", e);
+        Response::new(StatusCode::BadRequest, None)
     }
 }
