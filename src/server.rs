@@ -1,9 +1,17 @@
-use super::website_handler::WebsiteHandler;
-use crate::http::Request;
+use crate::http::{ParseError, Request, Response, StatusCode};
 use std::io::Read;
 use std::net::TcpListener;
 use std::sync::Arc;
 use std::thread;
+
+pub trait Handler: Send + Sync {
+    fn handle_request(&self, request: &Request) -> Response;
+
+    fn handle_bad_request(&self, e: &ParseError) -> Response {
+        println!("Failed to parse request: {}", e);
+        Response::new(StatusCode::BadRequest, None)
+    }
+}
 
 pub struct Server {
     address: String,
@@ -14,11 +22,10 @@ impl<'a> Server {
         Self { address }
     }
 
-    pub fn run(self, handler: Arc<WebsiteHandler>) {
+    pub fn run(self, handler: Arc<dyn Handler>) {
         println!("Listening on {}", self.address);
 
         let listener = TcpListener::bind(&self.address).unwrap();
-
         for stream in listener.incoming() {
             match stream {
                 Ok(mut stream) => {
