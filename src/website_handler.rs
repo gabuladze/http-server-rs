@@ -1,4 +1,5 @@
-use super::http::{Method, ParseError, Request, Response, StatusCode};
+use super::http::{Method, Request, Response, StatusCode};
+use crate::server::Handler;
 use std::fs;
 use std::{thread, time::Duration};
 
@@ -26,8 +27,10 @@ impl WebsiteHandler {
             Err(_) => None,
         }
     }
+}
 
-    pub fn handle_request(&self, request: &Request) -> Response {
+impl Handler for WebsiteHandler {
+    fn handle_request(&self, request: &Request) -> Response {
         match request.method() {
             Method::GET => match request.path() {
                 "/" => Response::new(StatusCode::Ok, self.read_file("index.html")),
@@ -42,10 +45,5 @@ impl WebsiteHandler {
             },
             _ => Response::new(StatusCode::NotFound, None),
         }
-    }
-
-    pub fn handle_bad_request(&self, e: &ParseError) -> Response {
-        println!("Failed to parse request: {}", e);
-        Response::new(StatusCode::BadRequest, None)
     }
 }
